@@ -1,0 +1,65 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>End of Term Countdown</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <link rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/@pqina/flip/dist/flip.min.css">
+  <link rel="stylesheet" href="{% static 'term/term.css' %}">
+</head>
+<body>
+  <div class="page">
+    <div class="card">
+      <h1>📚 End of Term</h1>
+      <p class="subtitle">Counting down to <strong>19 December 2025</strong></p>
+
+      <div class="tick" data-did-init="handleTickInit">
+        <div data-repeat="true" data-layout="horizontal center fit"
+             data-transform="preset(d, h, m, s) -> delay">
+
+          <div class="tick-group">
+            <div data-key="value" data-transform="pad(00)">
+              <span data-view="flip"></span>
+            </div>
+            <span class="tick-label">Days</span>
+          </div>
+
+          <div class="tick-group">
+            <div data-key="value" data-transform="pad(00)">
+              <span data-view="flip"></span>
+            </div>
+            <span class="tick-label">Hours</span>
+          </div>
+
+          <div class="tick-group">
+            <div data-key="value" data-transform="pad(00)">
+              <span data-view="flip"></span>
+            </div>
+            <span class="tick-label">Minutes</span>
+          </div>
+
+          <div class="tick-group">
+            <div data-key="value" data-transform="pad(00)">
+              <span data-view="flip"></span>
+            </div>
+            <span class="tick-label">Seconds</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="celebration" class="celebration hidden">
+      <div>
+        <h2>🎉 Term complete 🎉</h2>
+        <p>Well earned.</p>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@pqina/flip/dist/flip.min.js"></script>
+  <script src="{% static 'term/term.js' %}"></script>
+</body>
+</html>

@@ -1,0 +1,256 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Dashboard</title>
+  <link rel="stylesheet" href="{% static 'dashboard/dashboard.css' %}">
+</head>
+
+<body>
+  <div class="topbar">
+    <div class="brand">Welcome back, <strong>{{ user.username }}</strong></div>
+
+    <div class="qotd">
+      {% if qotd %}
+        “{{ qotd.text }}”{% if qotd.author %} — {{ qotd.author }}{% endif %}
+      {% else %}
+        <span class="muted">No quote set</span>
+      {% endif %}
+    </div>
+
+    <div class="top-actions">
+      <a class="btn btn--small" href="{% url 'logout' %}">Logout</a>
+    </div>
+  </div>
+
+  <div class="container">
+
+    <!-- Status strip: Clock + Countdowns -->
+    <div class="status-row">
+
+      <div class="panel">
+        <div class="panel__kicker">Local Time</div>
+        <div id="clock" class="clock">--:--:--</div>
+      </div>
+
+      <div class="panel">
+        <div class="panel__kicker">Countdowns</div>
+
+        {% for c in countdowns %}
+          <div class="countdown">
+            <div class="countdown__top">
+              <div class="countdown__title">{{ c.title }}</div>
+              <div class="countdown-time"
+                   data-start="{{ c.created_at|date:'c' }}"
+                   data-target="{{ c.target|date:'c' }}">
+                …
+              </div>
+            </div>
+
+            <div class="bar">
+              <div class="countdown-bar"
+                   data-start="{{ c.created_at|date:'c' }}"
+                   data-target="{{ c.target|date:'c' }}"></div>
+            </div>
+          </div>
+        {% empty %}
+          <div class="empty">No countdowns</div>
+        {% endfor %}
+
+        <form method="post" class="inline-form" style="margin-top:10px;">
+          {% csrf_token %}
+          <input class="input" type="text" name="countdown_title" placeholder="Countdown…" required>
+          <input class="input" type="datetime-local" name="countdown_target" required>
+          <button class="btn" type="submit">Add</button>
+        </form>
+      </div>
+
+    </div>
+
+    <!-- Shortcuts -->
+    <div class="section">
+      <div class="section__header">
+        <h2>Shortcuts</h2>
+      </div>
+
+      <div class="shortcut-grid">
+        {% for col in shortcut_columns %}
+          <div class="column">
+            <div class="column__header">
+              <h3 class="column__title">{{ col.name }}</h3>
+              <span class="pill">{{ col.shortcuts.all|length }}</span>
+            </div>
+
+            <div class="column__body">
+              {% for s in col.shortcuts.all %}
+                <a class="shortcut" href="{{ s.url }}" target="_blank" rel="noopener noreferrer">
+                  <img class="favicon" src="https://www.google.com/s2/favicons?domain={{ s.url }}&sz=64" alt="">
+                  <span>{{ s.name }}</span>
+                </a>
+              {% empty %}
+                <div class="empty">No shortcuts</div>
+              {% endfor %}
+
+              <form method="post" class="inline-form">
+                {% csrf_token %}
+                <input type="hidden" name="shortcut_column_id" value="{{ col.id }}">
+                <input class="input" type="text" name="shortcut_name" placeholder="Name…" autocomplete="off" required>
+                <input class="input" type="url" name="shortcut_url" placeholder="https://…" autocomplete="off" required>
+                <button class="btn" type="submit">Add</button>
+              </form>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- Tasks + Calendar + Notes + System -->
+    <div class="grid-2">
+
+      <!-- Tasks board -->
+      <div class="section">
+        <div class="section__header">
+          <h2>Tasks</h2>
+        </div>
+
+        <div class="board">
+          {% for item in task_board %}
+            <div class="column">
+              <div class="column__header">
+                <h3 class="column__title">{{ item.column.name }}</h3>
+                <span class="pill">{{ item.tasks|length }}</span>
+              </div>
+
+              <div class="column__body">
+                {% for task in item.tasks %}
+                  <div class="task">{{ task.title }}</div>
+                {% empty %}
+                  <div class="empty">No tasks</div>
+                {% endfor %}
+
+                <form method="post" class="inline-form">
+                  {% csrf_token %}
+                  <input type="hidden" name="column_id" value="{{ item.column.id }}">
+                  <input class="input" type="text" name="inline_title" placeholder="Add task…" autocomplete="off">
+                  <button class="btn" type="submit">Add</button>
+                </form>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section__header">
+          <h2>Today — {{ today }}</h2>
+        </div>
+
+        <div class="panel">
+          {% for e in todays_events %}
+            <div class="event">
+              <div class="event__title">{{ e.title }}</div>
+              <div class="event__meta">
+                {{ e.start_time|date:"H:i" }}–{{ e.end_time|date:"H:i" }}{% if e.location %} · {{ e.location }}{% endif %}
+              </div>
+            </div>
+          {% empty %}
+            <div class="empty">No events</div>
+          {% endfor %}
+
+          <form method="post" class="event-form">
+            {% csrf_token %}
+            <input class="input" type="text" name="event_title" placeholder="Add event…" required>
+            <div class="row">
+              <input class="input" type="time" name="event_start" required>
+              <input class="input" type="time" name="event_end" required>
+            </div>
+            <input class="input" type="text" name="event_location" placeholder="Location (optional)">
+            <button class="btn" type="submit">Add</button>
+          </form>
+        </div>
+
+        <div class="panel" style="margin-top:14px;">
+          <div class="panel__kicker">Brain dump</div>
+          <form method="post">
+            {% csrf_token %}
+            <textarea class="input textarea" name="brain_dump" rows="4" placeholder="Dump thoughts here…"></textarea>
+            <button class="btn" type="submit" style="margin-top:8px;">Save</button>
+          </form>
+
+          <div class="notes">
+            {% for entry in brain_dump_entries %}
+              <div class="note">
+                <div class="note__meta">{{ entry.created_at|date:"d M Y H:i" }}</div>
+                <div class="note__text">{{ entry.content }}</div>
+              </div>
+            {% empty %}
+              <div class="empty">No notes yet</div>
+            {% endfor %}
+          </div>
+        </div>
+
+        <div class="panel" style="margin-top:14px;">
+          <div class="panel__kicker">System</div>
+          <div class="sys">
+            <div><span class="muted">Python</span> {{ system_stats.python }}</div>
+            <div><span class="muted">Disk</span> {{ system_stats.disk_used_gb }} / {{ system_stats.disk_total_gb }} GB</div>
+            <div class="muted" style="margin-top:8px;">Private use recommended (Tailscale).</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <footer class="footer">
+      © {% now "Y" %} —
+      <a href="https://github.com/nxrtez" target="_blank" rel="noopener noreferrer">nxrtez</a>
+    </footer>
+  </div>
+
+  <script>
+    // Clock
+    function updateClock(){
+      const now = new Date();
+      document.getElementById("clock").textContent =
+        now.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" });
+    }
+    updateClock();
+    setInterval(updateClock, 1000);
+
+    // Countdowns (days remaining + progress)
+    function updateCountdowns(){
+      const now = new Date();
+
+      document.querySelectorAll(".countdown-time").forEach(el => {
+        const start = new Date(el.dataset.start);
+        const target = new Date(el.dataset.target);
+
+        const total = target - start;
+        const remaining = target - now;
+        const elapsed = total - remaining;
+
+        const bar = el.closest(".countdown").querySelector(".countdown-bar");
+
+        if (remaining <= 0){
+          el.textContent = "Elapsed";
+          if (bar) bar.style.width = "100%";
+          return;
+        }
+
+        const days = Math.ceil(remaining / 86400000);
+        el.textContent = `${days} day${days !== 1 ? "s" : ""} remaining`;
+
+        if (bar && total > 0){
+          const pct = Math.min(100, Math.max(0, (elapsed / total) * 100));
+          bar.style.width = pct.toFixed(1) + "%";
+        }
+      });
+    }
+
+    updateCountdowns();
+    setInterval(updateCountdowns, 3600000);
+  </script>
+</body>
+</html>

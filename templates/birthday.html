@@ -1,0 +1,37 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Birthday Countdown</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <link rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/@pqina/flip/dist/flip.min.css">
+  <link rel="stylesheet" href="{% static 'flip/birthday.css' %}">
+</head>
+<body>
+  <div class="page">
+    <div class="card">
+      <div class="title">🎂 Birthday Countdown</div>
+      <div class="subtitle">Counting down to <strong>24 December</strong></div>
+
+      <div class="tick" data-did-init="handleTickInit">
+        <div data-layout="horizontal center fit" data-transform="preset(d, h, m, s) -> delay">
+          <span data-view="flip"></span>
+        </div>
+      </div>
+    </div>
+
+    <div id="celebration" class="celebration hidden">
+      <div>
+        <h2>🎉 Happy Birthday! 🎉</h2>
+        <p>Enjoy it.</p>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@pqina/flip/dist/flip.min.js"></script>
+  <script src="{% static 'flip/birthday.js' %}"></script>
+</body>
+</html>
